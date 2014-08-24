@@ -22,6 +22,9 @@ namespace Bonobo.Git.Server.Controllers
         public ITeamRepository TeamRepository { get; set; }
 
         [Dependency]
+        public IRemoteRepository RemoteRepository { get; set; }
+
+        [Dependency]
         public IRepositoryRepository RepositoryRepository { get; set; }
 
         [Dependency]
@@ -303,11 +306,7 @@ namespace Bonobo.Git.Server.Controllers
 
             foreach (var item in treeNode)
             {
-                if (item.IsLink)
-                {
-                    outputZip.AddDirectoryByName(Path.Combine(item.TreeName, item.Path));
-                }
-                else if (!item.IsTree)
+                if (!item.IsTree)
                 {
                     string blobReferenceName;
                     var model = browser.BrowseBlob(item.TreeName, item.Path, out blobReferenceName);
@@ -357,77 +356,24 @@ namespace Bonobo.Git.Server.Controllers
             return View();
         }
 
-        [WebAuthorize]
-        public ActionResult Clone(string id)
-        {
-            if (!User.IsInRole(Definitions.Roles.Administrator) && !UserConfiguration.Current.AllowUserRepositoryCreation)
-            {
-                return RedirectToAction("Unauthorized", "Home");
-            }
-
-            var model = new RepositoryDetailModel
-            {
-                Administrators = new[] { User.Identity.Name.ToLowerInvariant() },
-            };
-            ViewBag.ID = id;
-            PopulateEditData();
-            return View(model);
-        }
-
-        [HttpPost]
-        [WebAuthorize]
+        /*
         [WebAuthorizeRepository]
-        public ActionResult Clone(string id, RepositoryDetailModel model)
+        public ActionResult Remotes(string id, string remotes)
         {
-            if (!User.IsInRole(Definitions.Roles.Administrator) && !UserConfiguration.Current.AllowUserRepositoryCreation)
-            {
-                return RedirectToAction("Unauthorized", "Home");
-            }
-
-            if (model != null && !String.IsNullOrEmpty(model.Name))
-            {
-                model.Name = Regex.Replace(model.Name, @"\s", "");
-            }
-
-            if (String.IsNullOrEmpty(model.Name))
-            {
-                ModelState.AddModelError("Name", Resources.Repository_Create_NameFailure);
-            }
-            else if (ModelState.IsValid)
-            {
-                if (RepositoryRepository.Create(ConvertRepositoryDetailModel(model)))
-                {
-                    string targetRepositoryPath = Path.Combine(UserConfiguration.Current.Repositories, model.Name);
-                    if (!Directory.Exists(targetRepositoryPath))
-                    {
-                        string sourceRepositoryPath = Path.Combine(UserConfiguration.Current.Repositories, id);
-                        
-                        LibGit2Sharp.CloneOptions options = new LibGit2Sharp.CloneOptions()
-                            {
-                                IsBare = true,
-                                Checkout = false
-                            };
-
-                        LibGit2Sharp.Repository.Clone(sourceRepositoryPath, targetRepositoryPath, options);
-                        TempData["CloneSuccess"] = true;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        RepositoryRepository.Delete(model.Name);
-                        ModelState.AddModelError("", Resources.Repository_Create_DirectoryExists);
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError("", Resources.Repository_Create_Failure);
-                }
-            }
-
             ViewBag.ID = id;
-            PopulateEditData();
-            return View(model);
+            if (!String.IsNullOrEmpty(id))
+            {
+                using (var browser = new RepositoryBrowser(Path.Combine(UserConfiguration.Current.Repositories, id)))
+                {
+                    var model = browser.GetCommitDetail(remotes);
+                    model.Name = id;
+                    return View(model);
+                }
+            }
+
+            return View();
         }
+        */
 
         private void PopulateAddressBarData(string name, string path)
         {
@@ -447,21 +393,31 @@ namespace Bonobo.Git.Server.Controllers
             ViewData["AvailableUsers"] = MembershipService.GetAllUsers().Select(i => i.Username).ToArray();
             ViewData["AvailableAdministrators"] = ViewData["AvailableUsers"];
             ViewData["AvailableTeams"] = TeamRepository.GetAllTeams().Select(i => i.Name).ToArray();
+            ViewData["AvailableRemotes"] = RemoteRepository.GetAllRemotes().Select(i => i.RepositoryId).ToArray();
         }
 
         private IEnumerable<RepositoryDetailModel> GetIndexModel()
         {
-            IEnumerable<RepositoryModel> repositoryModels;
             if (User.IsInRole(Definitions.Roles.Administrator))
             {
-                repositoryModels = RepositoryRepository.GetAllRepositories();
+                return ConvertRepositoryModels(RepositoryRepository.GetAllRepositories());
             }
             else
             {
                 var userTeams = TeamRepository.GetTeams(User.Identity.Name).Select(i => i.Name).ToArray();
-                repositoryModels = RepositoryRepository.GetPermittedRepositories(User.Identity.Name, userTeams);
+                var repositories = ConvertRepositoryModels(RepositoryRepository.GetPermittedRepositories(User.Identity.Name, userTeams));
+                return repositories;
             }
-            return repositoryModels.Select(ConvertRepositoryModel).ToList();
+        }
+
+        private IList<RepositoryDetailModel> ConvertRepositoryModels(IList<RepositoryModel> models)
+        {
+            var result = new List<RepositoryDetailModel>();
+            foreach (var item in models)
+            {
+                result.Add(ConvertRepositoryModel(item));
+            }
+            return result;
         }
 
         private RepositoryDetailModel ConvertRepositoryModel(RepositoryModel model)
@@ -473,6 +429,7 @@ namespace Bonobo.Git.Server.Controllers
                 Users = model.Users,
                 Administrators = model.Administrators,
                 Teams = model.Teams,
+                Remotes= model.Remotes,
                 IsCurrentUserAdministrator = model.Administrators.Contains(User.Identity.Name.ToLowerInvariant()),
                 AllowAnonymous = model.AnonymousAccess,
                 Status = GetRepositoryStatus(model)
@@ -497,6 +454,7 @@ namespace Bonobo.Git.Server.Controllers
                 Users = model.Users,
                 Administrators = model.Administrators,
                 Teams = model.Teams,
+                Remotes = model.Remotes,
                 AnonymousAccess = model.AllowAnonymous,
             };
         }

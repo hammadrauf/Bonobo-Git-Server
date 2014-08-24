@@ -32,6 +32,16 @@ namespace Bonobo.Git.Server.Data.Update
                         Constraint [PK_Team] Primary Key ([Name])
                     );
 
+                    CREATE TABLE IF NOT EXISTS [Remote] (
+                            [RepositoryId] VarChar(255) Not Null,
+                            [RemoteId] VarChar(100) Not Null,
+                            [RemoteDescription] VarChar(255) Null,
+                            [Username] VarChar(255) Null,
+                            [Password] VarChar(255) Null,
+							Constraint [PK_Remote] Primary Key ([RepositoryId], [RemoteId]),
+                            Foreign Key ([RepositoryId]) References [Repository]([Name])
+                        );
+
                     CREATE TABLE IF NOT EXISTS [User] (
                         [Name] VarChar(255) Not Null,
                         [Surname] VarChar(255) Not Null,

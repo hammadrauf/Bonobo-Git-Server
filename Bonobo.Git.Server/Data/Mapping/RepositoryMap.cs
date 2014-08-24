@@ -34,7 +34,7 @@ namespace Bonobo.Git.Server.Data.Mapping
                     m.MapRightKey("User_Username");
                 });
 
-            HasMany(t => t.Users)
+           HasMany(t => t.Users)
                 .WithMany(t => t.Repositories)
                 .Map(m =>
                 {
@@ -42,6 +42,19 @@ namespace Bonobo.Git.Server.Data.Mapping
                     m.MapLeftKey("Repository_Name");
                     m.MapRightKey("User_Username");
                 });
+
+           // One-to_many mapping, as per MSDN link, http://msdn.microsoft.com/en-us/library/vstudio/bb386950(v=vs.100).aspx
+           HasEntitySetName("Remotes");
+            /*
+              HasMany(t => t.Remotes)
+               .WithMany(t => t.Repositories)
+                .Map(m =>
+                    {
+                        m.ToTable("UserTeam_Member");
+                        m.MapLeftKey("Team_Name");
+                        m.MapRightKey("User_Username");
+                    });
+            */
         }
 
         private void SetTableAndColumnMappings()

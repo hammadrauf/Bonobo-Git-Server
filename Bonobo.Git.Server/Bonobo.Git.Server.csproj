@@ -186,6 +186,10 @@
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Data\EFRemoteRepository.cs" />
+    <Compile Include="Data\IRemoteRepository.cs" />
+    <Compile Include="Data\Mapping\RemoteMap.cs" />
+    <Compile Include="Data\Remote.cs" />
     <Compile Include="Data\Update\AutomaticUpdater.cs" />
     <Compile Include="Data\Update\RepositorySynchronizer.cs" />
     <Compile Include="Data\Update\SqlServer\InitialCreateScript.cs" />
@@ -228,6 +232,7 @@
     <Compile Include="Helpers\CustomHtmlHelpers.cs" />
     <Compile Include="Helpers\PathEncoder.cs" />
     <Compile Include="Models\HomeModels.cs" />
+    <Compile Include="Models\RemoteModels.cs" />
     <Compile Include="Models\RepositoryModels.cs" />
     <Compile Include="Models\SettingsModels.cs" />
     <Compile Include="Models\TeamModels.cs" />

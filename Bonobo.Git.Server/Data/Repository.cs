@@ -8,7 +8,8 @@ namespace Bonobo.Git.Server.Data
         private ICollection<Team> _teams;
         private ICollection<User> _administrators;
         private ICollection<User> _users;
-
+        private ICollection<Remote> _remotes;
+ 
         
         public string Name { get; set; }
         public string Description { get; set; }
@@ -47,6 +48,18 @@ namespace Bonobo.Git.Server.Data
             set
             {
                 _users = value;
+            }
+        }
+
+        public virtual ICollection<Remote> Remotes
+        {
+            get
+            {
+                return _remotes ?? (_remotes = new List<Remote>());
+            }
+            set
+            {
+                _remotes = value;
             }
         }
     }

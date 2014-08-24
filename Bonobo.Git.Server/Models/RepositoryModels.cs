@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Web;
 using System.ComponentModel.DataAnnotations;
 using Bonobo.Git.Server.App_GlobalResources;
 using LibGit2Sharp;
@@ -15,6 +17,7 @@ namespace Bonobo.Git.Server.Models
         public string[] Users { get; set; }
         public string[] Administrators { get; set; }
         public string[] Teams { get; set; }
+        public string[] Remotes { get; set; }
     }
 
     public class RepositoryDetailModel
@@ -46,6 +49,8 @@ namespace Bonobo.Git.Server.Models
         [Display(ResourceType = typeof(Resources), Name = "Repository_Detail_Status")]
         public RepositoryDetailStatus Status { get; set; }
 
+        [Display(ResourceType = typeof(Resources), Name = "Repository_Detail_Remotes")]
+        public string[] Remotes { get; set; }
     }
 
     public enum RepositoryDetailStatus

@@ -34,7 +34,7 @@ namespace Bonobo.Git.Server.Data.Mapping
                     m.MapRightKey("User_Username");
                 });
 
-           HasMany(t => t.Users)
+            HasMany(t => t.Users)
                 .WithMany(t => t.Repositories)
                 .Map(m =>
                 {

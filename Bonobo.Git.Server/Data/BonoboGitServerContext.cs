@@ -11,6 +11,7 @@ namespace Bonobo.Git.Server.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Remote> Remotes { get; set; }
 
+
         static BonoboGitServerContext()
         {
             Database.SetInitializer<BonoboGitServerContext>(null);

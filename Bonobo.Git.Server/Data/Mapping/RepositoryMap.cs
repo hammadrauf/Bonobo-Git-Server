@@ -44,7 +44,7 @@ namespace Bonobo.Git.Server.Data.Mapping
                 });
 
            // One-to_many mapping, as per MSDN link, http://msdn.microsoft.com/en-us/library/vstudio/bb386950(v=vs.100).aspx
-           HasEntitySetName("Remotes");
+           HasEntitySetName("Remote");
             /*
               HasMany(t => t.Remotes)
                .WithMany(t => t.Repositories)

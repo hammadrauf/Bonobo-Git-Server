@@ -20,7 +20,7 @@ namespace Bonobo.Git.Server.Data
                     Users = repo.Users.Select(i => i.Username),
                     Teams = repo.Teams.Select(i => i.Name),
                     Administrators = repo.Administrators.Select(i => i.Username),
-                    Remotes = repo.Remotes.Select(i => i.RepositoryId),
+                    Remotes = (repo.Remotes==null)?null:repo.Remotes.Select(i => i.RepositoryId),
                 }).ToList();
 
                 return dbrepos.Select(repo => new RepositoryModel
@@ -31,7 +31,7 @@ namespace Bonobo.Git.Server.Data
                     Users = repo.Users.ToArray(),
                     Teams = repo.Teams.ToArray(),
                     Administrators = repo.Administrators.ToArray(),
-                    Remotes = repo.Remotes.ToArray(),
+                    Remotes = (repo.Remotes==null)?null:repo.Remotes.ToArray(),
                 }).ToList();
             }
         }
@@ -152,7 +152,7 @@ namespace Bonobo.Git.Server.Data
                 Users = item.Users.Select(i => i.Username).ToArray(),
                 Teams = item.Teams.Select(i => i.Name).ToArray(),
                 Administrators = item.Administrators.Select(i => i.Username).ToArray(),
-                Remotes = item.Remotes.Select(i => i.RepositoryId).ToArray(),
+                Remotes = (item.Remotes==null)?null:item.Remotes.Select(i => i.RepositoryId).ToArray(),
             };
         }
 
